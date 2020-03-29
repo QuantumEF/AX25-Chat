@@ -5,10 +5,10 @@ import asyncio
 async def get_message(request):
 	print("Get Method")
 	global ax25_iface
-	#call, message = await ax25_iface.recv()
-	call = 'NOCALL'
-	message = 'placeholder'
-	await asyncio.sleep(10)
+	call, message = await ax25_iface.recv()
+	#call = 'NOCALL'
+	#message = 'placeholder'
+	#await asyncio.sleep(10)
 	return web.Response(text=call+': '+message)
 
 async def index_handle(request):
