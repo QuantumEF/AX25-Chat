@@ -15,10 +15,12 @@
 
             recv_http.onreadystatechange = function() {
                 if (this.readyState == 4 && this.status == 200) {
-                    console.log(recv_http.responseText)
-                    var chat_div = document.getElementById("chat");
-                    chat_div.innerHTML += "<p>"+recv_http.responseText+"</p>";
-                    chat_div.scrollTop = chat_div.scrollHeight;
+                    console.log(recv_http.responseText) 
+                    if (recv_http.responseText != 'None'){
+                        var chat_div = document.getElementById("chat");
+                        chat_div.innerHTML += "<p>"+recv_http.responseText+"</p>";
+                        chat_div.scrollTop = chat_div.scrollHeight;
+                    }
                     recv_message()
                 }
             };

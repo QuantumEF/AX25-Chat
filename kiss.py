@@ -1,6 +1,7 @@
 #!/usr/bin/python
 import sys
 import socket
+import asyncio
 #from hexdump import hexdump
 
 KISS_FEND = 0xC0    # Frame start/end marker
@@ -15,7 +16,7 @@ class kiss_ax25:
 		self.kiss_port = kiss_tcp_port
 		self.src_addr = encode_address(callsign.upper(), True)
 		self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		self.s.settimeout(5.0)
+		self.s.settimeout(1.0)
 		self.s.connect((self.kiss_addr, self.kiss_port))
 
 	def send(self, dest_call, message):
@@ -41,14 +42,14 @@ class kiss_ax25:
 		output = bytearray(kiss_frame)
 		self.s.send(output)
 
-	def recv(self):
+	async def recv(self):
 		recv_data = []
 		message=''
 		msg_bit = False
 		try:
-			recv_byte = self.s.recv(1)
+			recv_byte = await self.s.recv(1)
 		except:
-			return None, None
+			return "None", "None"
 		recv_byte = b'\x00'
 		while recv_byte != KISS_FEND:
 			recv_byte = ord(self.s.recv(1))

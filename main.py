@@ -6,8 +6,8 @@ async def get_message(request):
 	print("Get Method")
 	global ax25_iface
 	call, message = await ax25_iface.recv()
-	if call is None:
-		pass
+	if call == "None":
+		return web.Response(text='None')
 	#call = 'NOCALL'
 	#message = 'placeholder'
 	#await asyncio.sleep(1)
