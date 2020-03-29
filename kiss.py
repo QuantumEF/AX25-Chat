@@ -15,6 +15,7 @@ class kiss_ax25:
 		self.kiss_port = kiss_tcp_port
 		self.src_addr = encode_address(callsign.upper(), True)
 		self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		self.s.settimeout(5.0)
 		self.s.connect((self.kiss_addr, self.kiss_port))
 
 	def send(self, dest_call, message):
@@ -44,7 +45,10 @@ class kiss_ax25:
 		recv_data = []
 		message=''
 		msg_bit = False
-		recv_byte = self.s.recv(1)
+		try:
+			recv_byte = self.s.recv(1)
+		except:
+			return None, None
 		recv_byte = b'\x00'
 		while recv_byte != KISS_FEND:
 			recv_byte = ord(self.s.recv(1))
@@ -53,7 +57,7 @@ class kiss_ax25:
 			if msg_bit:
 				message+=chr(recv_byte)
 			recv_data.append(recv_byte)
-		raise recv_data
+		#raise recv_data
 		source = decode_address(recv_data[1+7:8+7])
 		return source, ''.join(message)
 
