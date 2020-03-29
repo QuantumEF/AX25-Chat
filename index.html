@@ -1,57 +1,57 @@
-<script>
+<!DOCTYPE html>
+<html>
 
-/*console.log('script loaded');
+<head>
+    <title>AX25-Chat</title>
+    <script type="text/javascript">
+        console.log('script loaded');
 
-var callsign = prompt("please enter your callsign:", "NOCALL");
-const Http1 = new XMLHttpRequest();
-Http1.open("POST", "call", false);
-Http1.send(callsign);
-console.log(Http1.responseText)
-Http1.onreadystatechange = function() {
-  if (this.readyState == 4 && this.status == 200) {
-    console.log(Http1.responseText)
-  }
-};
-console.log('ASYNC test')*/
+        function loadFunction() {
+            recv_message()
+        }
 
-function myFunction() {
-    const Http = new XMLHttpRequest();
+        function recv_message() {
+            const recv_http = new XMLHttpRequest();
 
-    Http.onreadystatechange = function() {
-      if (this.readyState == 4 && this.status == 200) {
-        console.log(Http.responseText)
-        var div = document.getElementById('test');
-        div.innerHTML += "<p>"+Http.responseText+"</p>";
-      }
-    };
+            recv_http.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                    console.log(recv_http.responseText)
+                    var chat_div = document.getElementById("chat");
+                    chat_div.innerHTML += "<p>"+recv_http.responseText+"</p>";
+                    chat_div.scrollTop = chat_div.scrollHeight;
+                    recv_message()
+                }
+            };
+            recv_http.open("GET", "recv");
+            recv_http.send();
+        }
 
-    Http.open("GET", "recv");
-    Http.send();
-}
+        function send_message() {
+            const send_http = new XMLHttpRequest();
 
-function myPost() {
-const xhttp = new XMLHttpRequest;
-var x = document.getElementById("fname").value;
-var div = document.getElementById('test');
-document.getElementById("fname").value = '';
-console.log(x);
-xhttp.open("POST", "send", true);
-xhttp.setRequestHeader("Content-type", "text/bullshit");
-xhttp.send(x);
+            send_http.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                    console.log(send_http.responseText)
+                    var chat_div = document.getElementById("chat");
+                    chat_div.innerHTML += "<p>"+send_http.responseText+"</p>";
+                    chat_div.scrollTop = chat_div.scrollHeight;
+                }
+            };
+            var message_input = document.getElementById("message_box");
+            send_http.open("POST", "send", true);
+            send_http.send(message_input.value)
+            message_input.value = '';
+        }
+    </script>
+</head>
 
-xhttp.onreadystatechange = function() {
-  if (this.readyState == 4 && this.status == 200) {
-    console.log(xhttp.responseText)
-    var div = document.getElementById('test');
-    div.innerHTML += "<p>"+xhttp.responseText+"</p>";
-  }
-};
+<body onload="loadFunction()">
+  <div id="chat" style="overflow: auto; width:300px; height:200px;">
+  Start
+  </div>
+  <!--<button onclick="recv_message()">Click me</button>-->
+  <button onclick="send_message()">Send</button>
+  <input type="text" id="message_box" name="message_box">
+</body>
 
-}
-</script>
-<div id="test" style="overflow: auto; width:300px; height:200px;">
-Start
-</div>
-<button onclick="myFunction()">Click me</button>
-<button onclick="myPost()">Click me Too</button>
-<input type="text" id="fname" name="fname">
+</html>

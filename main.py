@@ -1,10 +1,14 @@
 from aiohttp import web
 from kiss import kiss_ax25
+import asyncio
 
 async def get_message(request):
 	print("Get Method")
 	global ax25_iface
-	await call, message = ax25_iface.recv()
+	#call, message = await ax25_iface.recv()
+	call = 'NOCALL'
+	message = 'placeholder'
+	await asyncio.sleep(10)
 	return web.Response(text=call+': '+message)
 
 async def index_handle(request):
