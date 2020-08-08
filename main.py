@@ -9,24 +9,22 @@ index_file.close()
 ax25_iface = kiss_ax25("KN4VHM")
 
 async def get_message(request):
-	#print("Get Method")
 	global ax25_iface
 	call, message = ax25_iface.recv()
-	if call == "None":
-		return web.Response(text='None')
-	return web.Response(text=call+': '+message)
+	data = json.dumps({"callsign":call,"message":message})
+	return web.Response(text=data,content_type='application/json')
 
 async def index_handle(request):
-	print("html returned")
 	global index_html
 	return web.Response(text=index_html,content_type='text/html')
 
 async def send_message(request):
-	data = await request.read()
-	print(data.decode("ascii"))
+	message = await request.read()
+	print(message.decode("ascii"))
 	global ax25_iface
-	ax25_iface.send('IDENT',data.decode("ascii"))
-	return web.Response(text=data.decode("utf-8"))
+	ax25_iface.send('IDENT',message.decode("ascii"))
+	data = json.dumps({"callsign":ax25_iface.callsign,"message":message.decode("ascii")})
+	return web.Response(text=data)
 
 app = web.Application()
 app.router.add_get('/', index_handle)
