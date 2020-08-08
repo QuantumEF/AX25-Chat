@@ -2,7 +2,8 @@
 import sys
 import socket
 import asyncio
-#from hexdump import hexdump
+import select
+from hexdump import hexdump
 
 KISS_FEND = 0xC0    # Frame start/end marker
 KISS_FESC = 0xDB    # Escape character
@@ -16,8 +17,9 @@ class kiss_ax25:
 		self.kiss_port = kiss_tcp_port
 		self.src_addr = encode_address(callsign.upper(), True)
 		self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		self.s.settimeout(1.0)
 		self.s.connect((self.kiss_addr, self.kiss_port))
+		self.poller = select.poll()
+		self.poller.register(self.s, select.POLLIN)
 
 	def send(self, dest_call, message):
 		dest_addr = encode_address(dest_call.upper(), False)
@@ -42,24 +44,25 @@ class kiss_ax25:
 		output = bytearray(kiss_frame)
 		self.s.send(output)
 
-	async def recv(self):
+	def recv(self):
 		recv_data = []
 		message=''
 		msg_bit = False
-		try:
-			recv_byte = await self.s.recv(1)
-		except:
+		fdVsEvent = self.poller.poll(500)
+		if fdVsEvent == []:
 			return "None", "None"
-		recv_byte = b'\x00'
-		while recv_byte != KISS_FEND:
-			recv_byte = ord(self.s.recv(1))
-			if recv_byte == 0xF0:
-				msg_bit = True
-			if msg_bit:
-				message+=chr(recv_byte)
-			recv_data.append(recv_byte)
-		#raise recv_data
-		source = decode_address(recv_data[1+7:8+7])
+		for descriptor, Event in fdVsEvent:
+			recv_byte = self.s.recv(1)
+			recv_byte = b'\x00'
+			while recv_byte != KISS_FEND:
+				recv_byte = ord(self.s.recv(1))
+				if recv_byte == 0xF0:
+					msg_bit = True
+				if msg_bit:
+					message+=chr(recv_byte)
+				recv_data.append(recv_byte)
+			source = decode_address(recv_data[1+7:8+7])
+			hexdump(''.join(message))
 		return source, ''.join(message)
 
 	def kill(self):
