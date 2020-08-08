@@ -20,11 +20,10 @@ async def index_handle(request):
 
 async def send_message(request):
 	message = await request.read()
-	print(message.decode("ascii"))
 	global ax25_iface
 	ax25_iface.send('IDENT',message.decode("ascii"))
 	data = json.dumps({"callsign":ax25_iface.callsign,"message":message.decode("ascii")})
-	return web.Response(text=data)
+	return web.Response(text=data,content_type='application/json')
 
 app = web.Application()
 app.router.add_get('/', index_handle)
